@@ -16,11 +16,24 @@ const DENTAL_HEALTH_OPTIONS = [
   "Verbesserungswürdig",
 ] as const;
 
+// Erweiterte Typen für detailliertere Ergebnisse
+type DentalHealthStatus = (typeof DENTAL_HEALTH_OPTIONS)[number];
+
+interface DentalAnalysis {
+  overallHealth: DentalHealthStatus;
+  teethCount: number;
+  gumsHealth: DentalHealthStatus;
+  tartar: DentalHealthStatus;
+  cavities: number;
+}
+
+interface CalculationResult {
+  premium: number;
+  dentalAnalysis: DentalAnalysis;
+}
+
 export function Step3Result({ lifeSituation, onBack }: Step3ResultProps) {
-  const [result, setResult] = useState<{
-    premium: number;
-    dentalHealth: (typeof DENTAL_HEALTH_OPTIONS)[number];
-  } | null>(null);
+  const [result, setResult] = useState<CalculationResult | null>(null);
 
   useEffect(() => {
     // Simuliere API-Aufruf
@@ -32,14 +45,25 @@ export function Step3Result({ lifeSituation, onBack }: Step3ResultProps) {
         family: 79.99,
       }[lifeSituation.situation];
 
-      const randomHealth =
-        DENTAL_HEALTH_OPTIONS[
-          Math.floor(Math.random() * DENTAL_HEALTH_OPTIONS.length)
-        ];
-
+      // Erweiterte Simulationsdaten
       setResult({
         premium: basePrice,
-        dentalHealth: randomHealth,
+        dentalAnalysis: {
+          overallHealth:
+            DENTAL_HEALTH_OPTIONS[
+              Math.floor(Math.random() * DENTAL_HEALTH_OPTIONS.length)
+            ],
+          teethCount: Math.floor(Math.random() * (32 - 28 + 1)) + 28, // 28-32 Zähne
+          gumsHealth:
+            DENTAL_HEALTH_OPTIONS[
+              Math.floor(Math.random() * DENTAL_HEALTH_OPTIONS.length)
+            ],
+          tartar:
+            DENTAL_HEALTH_OPTIONS[
+              Math.floor(Math.random() * DENTAL_HEALTH_OPTIONS.length)
+            ],
+          cavities: Math.floor(Math.random() * 3), // 0-2 Kavitäten
+        },
       });
     };
 
@@ -68,11 +92,44 @@ export function Step3Result({ lifeSituation, onBack }: Step3ResultProps) {
             </p>
           </div>
 
-          <div className="bg-gray-50 p-6 rounded-lg">
-            <p className="text-lg font-medium">Zustand Ihrer Zähne</p>
-            <p className="text-3xl font-bold text-[#FFB81C]">
-              {result.dentalHealth}
-            </p>
+          <div className="bg-gray-50 p-6 rounded-lg space-y-4">
+            <div>
+              <p className="text-lg font-medium">Gesamtergebnis</p>
+              <p className="text-3xl font-bold text-[#FFB81C]">
+                {result.dentalAnalysis.overallHealth}
+              </p>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <p className="text-sm font-medium text-gray-600">
+                  Anzahl Zähne
+                </p>
+                <p className="text-lg font-semibold">
+                  {result.dentalAnalysis.teethCount}
+                </p>
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-600">Zahnfleisch</p>
+                <p className="text-lg font-semibold">
+                  {result.dentalAnalysis.gumsHealth}
+                </p>
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-600">Zahnstein</p>
+                <p className="text-lg font-semibold">
+                  {result.dentalAnalysis.tartar}
+                </p>
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-600">
+                  Kariöse Stellen
+                </p>
+                <p className="text-lg font-semibold">
+                  {result.dentalAnalysis.cavities}
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
